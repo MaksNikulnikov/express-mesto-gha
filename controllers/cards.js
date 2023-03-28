@@ -1,7 +1,8 @@
 const Card = require('../models/card');
 
-module.exports.getCards = (res) => {
+module.exports.getCards = (req, res) => {
   Card.find({})
+    .populate('owner')
     .then((card) => res.send({ data: card }))
     .catch(() => res.status(500).send({ message: 'Что-то пошло не так...' }));
 };
@@ -22,6 +23,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
+    .populate('owner')
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -38,6 +40,7 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .populate('owner')
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError' && err.path === '_id') {
@@ -58,6 +61,7 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .populate('owner')
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError' && err.path === '_id') {
