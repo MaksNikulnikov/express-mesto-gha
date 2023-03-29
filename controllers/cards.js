@@ -2,7 +2,7 @@ const Card = require('../models/card');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .populate('owner')
+    .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
     .catch(() => res.status(500).send({ message: 'Что-то пошло не так...' }));
 };
@@ -23,8 +23,8 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .populate('owner')
-    .then((card) => res.send({ data: card }))
+    .then((card) => card.populate('owner')
+      .then((newCard) => res.send({ data: newCard })))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
@@ -47,10 +47,6 @@ module.exports.likeCard = (req, res) => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
-        return;
-      }
       res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
@@ -66,10 +62,6 @@ module.exports.dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError' && err.path === '_id') {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
-        return;
-      }
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
         return;
       }
       res.status(500).send({ message: 'Что-то пошло не так...' });
