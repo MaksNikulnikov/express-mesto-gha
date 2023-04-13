@@ -19,7 +19,7 @@ module.exports.getUser = (req, res) => {
       res.status(status.NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'CastError' || err.name === 'ValidatorError') {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при запросе пользователя.' });
         return;
       }
@@ -32,7 +32,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
         return;
       }
@@ -55,6 +55,10 @@ module.exports.patchUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+        return;
+      }
+      if (err.name === 'ValidationError') {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
         return;
       }
       res.status(status.INTERNAL_SERVER_ERROR).send({ message: err });
