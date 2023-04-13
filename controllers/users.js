@@ -66,13 +66,13 @@ module.exports.patchUser = (req, res) => {
 };
 
 module.exports.patchAvatar = (req, res) => {
-  const { link } = req.body;
+  const { avatar } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
-    { avatar: link },
+    { avatar },
     {
-      new: false,
+      new: true,
       runValidators: true,
     },
   )
