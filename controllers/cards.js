@@ -42,10 +42,16 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .populate('owner')
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card) {
+        res.send({ data: card });
+        return;
+      }
+      res.status(status.NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
+    })
     .catch((err) => {
-      if (err.name === 'CastError' && err.path === '_id') {
-        res.status(status.NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
+      if (err.name === 'CastError') {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при постановке лайка.' });
         return;
       }
       res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
@@ -59,10 +65,16 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .populate('owner')
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card) {
+        res.send({ data: card });
+        return;
+      }
+      res.status(status.NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
+    })
     .catch((err) => {
-      if (err.name === 'CastError' && err.path === '_id') {
-        res.status(status.NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
+      if (err.name === 'CastError') {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при постановке лайка.' });
         return;
       }
       res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
