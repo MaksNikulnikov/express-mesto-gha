@@ -5,7 +5,7 @@ module.exports.getUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      res.status(status.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: err });
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: err });
     });
 };
 
@@ -16,14 +16,14 @@ module.exports.getUser = (req, res) => {
         res.send({ data: user });
         return;
       }
-      res.status(status.HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
+      res.status(status.NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(status.HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при запросе пользователя.' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при запросе пользователя.' });
         return;
       }
-      res.status(status.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -32,11 +32,11 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(status.HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+      if (err.name === 'ValidationError' || err.name === 'ValidationError') {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
         return;
       }
-      res.status(status.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -54,10 +54,10 @@ module.exports.patchUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(status.HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+        res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
         return;
       }
-      res.status(status.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: err });
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: err });
     });
 };
 
@@ -75,9 +75,9 @@ module.exports.patchAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(status.HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+        res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
         return;
       }
-      res.status(status.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: err });
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: err });
     });
 };
