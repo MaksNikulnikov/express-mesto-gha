@@ -10,10 +10,16 @@ module.exports.getCards = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card) {
+        res.send({ data: card });
+        return;
+      }
+      res.status(status.NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(status.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при постановке лайка.' });
         return;
       }
       res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
