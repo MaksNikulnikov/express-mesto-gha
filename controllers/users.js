@@ -72,7 +72,7 @@ module.exports.patchAvatar = (req, res) => {
     req.user._id,
     { avatar: link },
     {
-      new: true,
+      new: false,
       runValidators: true,
     },
   )
