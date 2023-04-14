@@ -20,7 +20,7 @@ module.exports.getUser = (req, res) => {
       res.status(status.NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      if (err instanceof mongoose.CastError) {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при запросе пользователя.' });
         return;
       }
@@ -33,7 +33,8 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof mongoose.ValidationError) {
+      res.send({ message: err });
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
         return;
       }
@@ -54,18 +55,17 @@ module.exports.patchUser = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof mongoose.CastError) {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
         return;
       }
-      if (err instanceof mongoose.ValidationError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
         return;
       }
       res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
-
 module.exports.patchAvatar = (req, res) => {
   const { avatar } = req.body;
 
@@ -79,11 +79,11 @@ module.exports.patchAvatar = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof mongoose.CastError) {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
         return;
       }
-      if (err instanceof mongoose.ValidationError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
         return;
       }
