@@ -33,7 +33,6 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      res.send({ message: err });
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
         return;
