@@ -54,10 +54,6 @@ module.exports.patchUser = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
-        return;
-      }
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
         return;
@@ -78,10 +74,6 @@ module.exports.patchAvatar = (req, res) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(status.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
-        return;
-      }
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
         return;
