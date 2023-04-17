@@ -1,55 +1,47 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const status = require('../constants');
 
-const BadRequestError = require('../errors/BadRequestError');
-const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
-const ConflictError = require('../errors/ConflictError');
-
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch(() => {
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
+    });
 };
 
-module.exports.getUser = (req, res, next) => {
+module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (user) {
         res.send({ data: user });
         return;
       }
-      next(Promise.reject(new NotFoundError('Пользователь не найден')));
+      res.status(status.NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при запросе пользователя.'));
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при запросе пользователя.' });
+        return;
       }
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
 
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, hash,
-    }))
+module.exports.createUser = (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
-      }
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя.'));
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        return;
       }
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
 
-module.exports.patchUser = (req, res, next) => {
+module.exports.patchUser = (req, res) => {
   const { name, about } = req.body;
   const data = { name, about };
   User.findByIdAndUpdate(
@@ -63,12 +55,13 @@ module.exports.patchUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при обновлении пользователя.'));
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
+        return;
       }
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
 };
-
-module.exports.patchAvatar = (req, res, next) => {
+module.exports.patchAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -82,36 +75,9 @@ module.exports.patchAvatar = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при обновлении пользователя.'));
+        res.status(status.BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении пользователя.' });
+        return;
       }
+      res.status(status.INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так...' });
     });
-};
-
-module.exports.login = (req, res, next) => {
-  const {
-    email, password,
-  } = req.body;
-
-  User.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        throw Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
-      }
-
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          throw Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
-        }
-        const token = jwt.sign(
-          { _id: user._id },
-          'some-secret-key',
-          { expiresIn: '7d' },
-        );
-        res.cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
-        });
-      });
-    })
-    .catch(next);
 };

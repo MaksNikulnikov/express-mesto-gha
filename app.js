@@ -8,8 +8,14 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '642007824985bf7cb6735061',
+  };
+
+  next();
+});
 app.use('/', require('./routes/index'));
-app.use(require('./middlewares/errors'));
 
 app.listen(PORT, () => {
 });
