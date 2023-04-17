@@ -15,7 +15,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -95,23 +95,25 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+        return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
       }
 
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          throw Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
-        }
-        const token = jwt.sign(
-          { _id: user._id },
-          'some-secret-key',
-          { expiresIn: '7d' },
-        );
-        res.cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+          }
+          const token = jwt.sign(
+            { _id: user._id },
+            'some-secret-key',
+            { expiresIn: '7d' },
+          );
+          res.cookie('jwt', token, {
+            maxAge: 3600000,
+            httpOnly: true,
+          })
+            .end();
         });
-      });
     })
     .catch(next);
 };
