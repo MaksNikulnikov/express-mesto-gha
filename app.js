@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -9,6 +10,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/', require('./routes/index'));
+
+app.use(errors());
 app.use(require('./middlewares/errors'));
 
 app.listen(PORT, () => {
