@@ -99,6 +99,7 @@ module.exports.login = (req, res, next) => {
       }
 
       return bcrypt.compare(password, user.password)
+        // eslint-disable-next-line consistent-return
         .then((matched) => {
           if (!matched) {
             return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
