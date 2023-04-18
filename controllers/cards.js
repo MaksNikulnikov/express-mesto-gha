@@ -15,6 +15,9 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((searchedCard) => {
+      if (!searchedCard) {
+        return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
+      }
       if (!(String(req.user._id) === searchedCard.owner.toString())) {
         return Promise.reject(new ForbiddenError('Вы не можете удалить эту карту'));
       }
