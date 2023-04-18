@@ -15,7 +15,12 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  User.findById(req.user._id)
+  let id;
+  // eslint-disable-next-line no-unused-expressions
+  req.params.id
+    ? id = req.params.id
+    : id = req.user._id;
+  User.findById(id)
     .then((user) => {
       if (user) {
         res.send({ data: user });

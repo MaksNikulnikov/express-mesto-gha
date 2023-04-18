@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
 const {
   getUsers,
   getUser,
@@ -8,6 +9,11 @@ const {
 
 router.get('/', getUsers);
 router.get('/me', getUser);
+router.get('/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().required().length(24),
+  }),
+}), getUser);
 router.patch('/me', patchUser);
 router.patch('/me/avatar', patchAvatar);
 
