@@ -13,25 +13,21 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.find(req.params.cardId)
-    .then((card) => {
-      if (!req.user._id === card.owner) {
+  Card.find({ _id: req.params.cardId })
+    .then((searchedCard) => {
+      if (!req.user._id === searchedCard.owner) {
         return Promise.reject(new UnauthorizedError('Вы не можете удалить эту карту'));
       }
-      return Card.findByIdAndRemove(req.params.cardId);
+      return Card.findByIdAndRemove(req.params.cardId).then((card) => {
+        if (card) {
+          res.send({ data: card });
+          return;
+        }
+        // eslint-disable-next-line consistent-return
+        return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
+      });
     })
-    .then((card) => {
-      if (card) {
-        res.send({ data: card });
-        return;
-      }
-      next(new NotFoundError('Передан несуществующий _id карточки.'));
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Переданы некорректные данные при постановке лайка.'));
-      }
-    });
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
