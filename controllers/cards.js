@@ -18,18 +18,22 @@ module.exports.deleteCard = (req, res, next) => {
       if (!req.user._id === searchedCard.owner) {
         return Promise.reject(new ForbiddenError('Вы не можете удалить эту карту'));
       }
-      return Card.findByIdAndRemove(req.params.cardId).then((card) => {
-        if (card) {
-          res.send({ data: card });
-          return;
-        }
-        // eslint-disable-next-line consistent-return
-        return Promise.reject(new BadRequestError('Передан некорректный _id карточки.'));
-      });
+      return Card.findByIdAndRemove(req.params.cardId)
+        .then((card) => {
+          if (card) {
+            res.send({ data: card });
+            return;
+          }
+          // eslint-disable-next-line consistent-return
+          return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
+        });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new NotFoundError('Передан несуществующий _id карточки.'));
+      }
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(new BadRequestError('Передан некорректный _id карточки.'));
       }
       next(err);
     });
