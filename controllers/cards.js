@@ -21,13 +21,17 @@ module.exports.deleteCard = (req, res, next) => {
       return Card.findByIdAndRemove(req.params.cardId).then((card) => {
         if (card) {
           res.send({ data: card });
-          return;
+          // return;
         }
-        // eslint-disable-next-line consistent-return
-        return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
+        // // eslint-disable-next-line consistent-return
+        // return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        next(new NotFoundError('Передан несуществующий _id карточки.'));
+      }
+    });
 };
 
 module.exports.createCard = (req, res, next) => {

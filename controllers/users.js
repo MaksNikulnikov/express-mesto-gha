@@ -26,7 +26,7 @@ module.exports.getUser = (req, res, next) => {
         res.send({ data: user });
         return;
       }
-      next(Promise.reject(new NotFoundError('Пользователь не найден')));
+      next((new NotFoundError('Пользователь не найден')));
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
