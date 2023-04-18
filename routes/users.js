@@ -14,7 +14,23 @@ router.get('/:id', celebrate({
     id: Joi.string().required().length(24),
   }),
 }), getUser);
-router.patch('/me', patchUser);
-router.patch('/me/avatar', patchAvatar);
+router.patch('/me', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().min(6).email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?\w+#?/),
+  }),
+}), patchUser);
+router.patch('/me/avatar', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().min(6).email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?\w+#?/),
+  }),
+}), patchAvatar);
 
 module.exports = router;

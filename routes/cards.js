@@ -18,7 +18,12 @@ function checkCardId() {
 
 router.get('/', getCards);
 router.delete('/:cardId', checkCardId(), deleteCard);
-router.post('/', createCard);
+router.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(/(https?:\/\/)(w{3}\.)?\w+#?/),
+  }),
+}), createCard);
 router.put('/:cardId/likes', checkCardId(), likeCard);
 router.delete('/:cardId/likes', checkCardId(), dislikeCard);
 
