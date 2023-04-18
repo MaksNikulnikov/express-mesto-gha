@@ -16,8 +16,8 @@ router.get('/:id', celebrate({
 }), getUser);
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().min(6).email(),
-    password: Joi.string().required().min(8),
+    email: Joi.string().min(6).email(),
+    password: Joi.string().min(8),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?\w+#?/),
@@ -25,8 +25,8 @@ router.patch('/me', celebrate({
 }), patchUser);
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().min(6).email(),
-    password: Joi.string().required().min(8),
+    email: Joi.string().min(6).email(),
+    password: Joi.string().min(8),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/(https?:\/\/)(w{3}\.)?\w+#?/),
