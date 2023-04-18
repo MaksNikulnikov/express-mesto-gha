@@ -3,7 +3,7 @@ const Card = require('../models/card');
 
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -16,7 +16,7 @@ module.exports.deleteCard = (req, res, next) => {
   Card.find({ _id: req.params.cardId })
     .then((searchedCard) => {
       if (!req.user._id === searchedCard.owner) {
-        return Promise.reject(new UnauthorizedError('Вы не можете удалить эту карту'));
+        return Promise.reject(new ForbiddenError('Вы не можете удалить эту карту'));
       }
       return Card.findByIdAndRemove(req.params.cardId).then((card) => {
         if (card) {
@@ -24,7 +24,7 @@ module.exports.deleteCard = (req, res, next) => {
           return;
         }
         // eslint-disable-next-line consistent-return
-        return Promise.reject(new NotFoundError('Передан несуществующий _id карточки.'));
+        return Promise.reject(new BadRequestError('Передан некорректный _id карточки.'));
       });
     })
     .catch((err) => {
