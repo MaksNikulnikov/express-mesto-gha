@@ -15,7 +15,6 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((searchedCard) => {
-      console.log(String(req.user._id), searchedCard._id.toString(), !(String(req.user._id) === searchedCard._id.toString()))
       if (!(String(req.user._id) === searchedCard._id.toString())) {
         return Promise.reject(new ForbiddenError('Вы не можете удалить эту карту'));
       }
