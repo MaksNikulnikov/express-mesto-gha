@@ -13,7 +13,7 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.find({ _id: req.params.cardId })
+  Card.findById(req.params.cardId)
     .then((searchedCard) => {
       if (!req.user._id === searchedCard.owner) {
         return Promise.reject(new ForbiddenError('Вы не можете удалить эту карту'));
