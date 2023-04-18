@@ -23,8 +23,6 @@ router.use(auth);
 router.use('/users', require('./users'));
 router.use('/cards', require('./cards'));
 
-router.use('*', () => {
-  throw Promise.reject(new NotFoundError('По указанному URL ничего нет'));
-});
+router.use('*', (req, res, next) => next(new NotFoundError('По указанному URL ничего нет')));
 
 module.exports = router;
